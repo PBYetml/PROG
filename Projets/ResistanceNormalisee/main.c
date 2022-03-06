@@ -27,11 +27,22 @@
 //-- programme principales --// 
 void main()
 {
-	//-- déclaration de variables --//
-	e_validation validationSerie = NOT_OK;		// NOT_OK valeur non validée => OK valeur validée
-	e_validation validatonResistance = NOT_OK;	// NOT_OK valeur non validée => OK valeur validée
+	//-- déclaration de variables --// 
+	//-- enumaration --// 
+	e_validation validationSerie = NOT_OK;			// NOT_OK valeur non validée => OK valeur validée
+	e_validation validationResistance = NOT_OK;		// NOT_OK valeur non validée => OK valeur validée
+	e_validation validadationPuissanceR = NOT_OK;	// NOT_OK valeur non validée => OK valeur validée
+
+	//-- floattant --// 
 	float choixUserValResistance; 
-	int choixUserSerie; 
+	float tbDecadeE6[E6] = { 0 }, tbDecadeE12[E12] = { 0 }, tbDecadeE24[E24] = { 0 }; 
+
+	//-- entier --// 
+	int choixUserSerie, choixPuissanceR; 
+
+	//-- strcuture --//
+	s_serieRX Resistances;  //ResistanceE12, ResistanceE24; 
+
 
 	//-- message user --// 
 	printf("TEST1 SEMESTRE 2 - ANNEE 2022 - DEVELOPPEUR : %s \n", NOM_DEVELOPPEUR); 
@@ -50,39 +61,68 @@ void main()
 
 			//-- appel de fonction => vider le buffer clavier --//
 			ViderBufferClavier(); 
+
+			//-- appel de fonction => test si série valide --//
+			validationSerie = ControleChoixSerie(choixUserSerie);
 		}
 
 		//-- test sur le choix de la valeur de résistance --// 
-		if (validatonResistance == NOT_OK)
+		if (validationResistance == NOT_OK)
 		{
 			//-- information / demande à l'utilisateur 
-			printf("\nVeuillez inserer une valeur unitaire de resistance entre 1.00 à 9.99 (ex : 3.14) :"); 
+			printf("\nVeuillez inserer une valeur unitaire de resistance entre 1.00 à 9.99 (ex : 3.14) : "); 
 
 			//-- récupération de info utilisateur --// 
 			scanf("%f", &choixUserValResistance);
 
 			//-- appel de fonction => vider le buffer clavier --//
 			ViderBufferClavier();
+
+			//-- appel de fonction => test si valeur résistance unitaire est dans les limites --// 
+			validationResistance = ControleChoixResistance(choixUserValResistance);
 		}
 
-		//-- appel de fonction => test si série valide 
-		validationSerie = ControleChoixSerie(choixUserSerie); 
+		//-- test sur le choix de la puissance de 10 que l'utilsateur --// 
+		if (validadationPuissanceR == NOT_OK)
+		{
+			//-- information / demande à l'utilisateur 
+			printf("\nVeuillez inserer une valeur de puissance de 10 entre 0 et 6 : 10 ^ ");
 
-		//-- appel de fonction => test si valeur résistance unitaire est dans les limites 
-		validatonResistance = ControleChoixResistance(choixUserValResistance); 
+			//-- récupération de info utilisateur --// 
+			scanf("%d", &choixPuissanceR);
 
-	} while (validationSerie == NOT_OK); 
+			//-- appel de fonction => vider le buffer clavier --//
+			ViderBufferClavier();
 
+			//-- appel de fonction => test si valeur résistance unitaire est dans les limites --// 
+			validadationPuissanceR = ControlePuissanceResistance(choixPuissanceR);
+		}
 
+	} while ((validationSerie == NOT_OK) || (validationResistance == NOT_OK) || (validadationPuissanceR == NOT_OK));
 
+	//-- appel de fonction => calculer la résistance définit par l'utilisateur
+	Resistances.resistanceBrute = CalculResistanceUser(choixUserValResistance, choixPuissanceR);
 
-	//-- calcul des valeurs unitaires en fonction de la série choisie (
-	
+	//-- appel de fonction => afficher la valeur avec le suffixe de puissance (-, k, M)
+	AfficherValeurResistance(Resistances.resistanceBrute, choixPuissanceR);
 
-	
+	//-- sélection de la structure à utiliser en fonction du choix de l'utilisateur --// 
+	switch (choixUserSerie)
+	{
+		case E6: 
+			Resistances.choixSerieR = E6; 
+			break; 
 
+		case E12: 
+			Resistances.choixSerieR = E12;
+			break; 
 
+		case E24: 
+			Resistances.choixSerieR = E24;
+			break; 
 
-
-
+		default: 
+			printf("!! Aucune structure selectionnee !!"); 
+			break; 
+	}
 }
