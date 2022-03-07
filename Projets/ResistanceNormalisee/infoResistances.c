@@ -2,7 +2,7 @@
 // Nom du projet 		: Approximation résistance
 // Nom du fichier 		: infoResistance.c
 // Date de création 	: 04.03.2022
-// Date de modification : 05.03.2022
+// Date de modification : 07.03.2022
 //
 // Auteur 				: Philou (Ph. Bovey)
 //
@@ -159,7 +159,61 @@ void AfficherValeurResistance(float valRBrute, uint8_t poidPuissance)
 	}
 
 	//-- affichage du message --// 
-	printf("la valeur est de %3.3f %cohm", displayValeurR, displaySuffixe);
+	printf(" est de %3.3f %cohm", displayValeurR, displaySuffixe);
 }
 
+
+//----------------------------------------------------------------------------------//
+// Nom de la fonction		: CalculPointSerie
+// Entrée / Sortie / I/O    : - / - / infoResistance 
+// Description				: calcul les différents points de la série choisie 
+// Date modfification		: le 07.03.2022
+// Remarque					: -
+//----------------------------------------------------------------------------------//
+void CalculPointSerie(s_serieRX *infoResistance)
+{
+	//-- déclaration des variables --// 
+	float exposant; 
+	uint8_t indice; 
+
+	//-- itération pour calculer le tableau de série unitaire --// 
+	for (indice = 1; indice <= infoResistance->choixSerieR; indice++)
+	{
+		//-- calcul de l'exposant --//
+		exposant = (1.0 / (float)infoResistance->choixSerieR) * (float)(indice - 1); 
+
+		//-- calcul du rang --// 
+		infoResistance->pt_tbApproximation[indice - 1] = pow(10, exposant); 
+	}
+}
+
+//----------------------------------------------------------------------------------//
+// Nom de la fonction		: CalculValeurNormalisee
+// Entrée / Sortie / I/O    : - / - / infoResistance 
+// Description				: calcule de la valeur normalisée par rapport à la 
+//							  résistance brute   
+// Date modfification		: le 07.03.2022
+// Remarque					: -
+//----------------------------------------------------------------------------------//
+void CalculValeurNormalisee(s_serieRX *infoResistance)
+{
+	//-- déclaration de variables --// 
+	float rang, valeurUnitaireR; 
+
+	//-- valeur unitaire de la résistance entre 1 à 10 --//
+	valeurUnitaireR = infoResistance->resistanceBrute / (pow(10, infoResistance->poidPuissanceR)); 
+
+	//-- calcul du rang --// 
+	rang = log10(pow(valeurUnitaireR,infoResistance->choixSerieR)); 
+
+	//-- déterminer l'arrondi supérieur ou inférieur --// 
+	if ((rang - (int)rang) < 0.5)
+		infoResistance->rangResistance = floor(rang); 
+	else 
+		infoResistance->rangResistance = ceil(rang);
+
+	//-- déterminer la valeur normalisée --//
+	infoResistance->resistanceNormalisee = CalculResistanceUser(infoResistance->pt_tbApproximation[infoResistance->rangResistance],
+		                                                        infoResistance->poidPuissanceR); 
+}
 

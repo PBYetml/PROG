@@ -2,7 +2,7 @@
 // Nom du projet 		: Approximation résistance
 // Nom du fichier 		: main.c
 // Date de création 	: 04.03.2022
-// Date de modification : 05.03.2022
+// Date de modification : 07.03.2022
 //
 // Auteur 				: Philou (Ph. Bovey)
 //
@@ -17,6 +17,7 @@
 //-- librairires standards --// 
 #include <stdio.h>		// flux d'entrée / sortie 
 #include <stdint.h>		// normalisation des types entiers 
+#include <math.h>
 
 //-- librairies personnelles --// 
 #include "infoSeries.h"
@@ -37,6 +38,7 @@ void main()
 	float choixUserValResistance; 
 	float tbDecadeE6[E6] = { 0 }, tbDecadeE12[E12] = { 0 }, tbDecadeE24[E24] = { 0 }; 
 
+	double test; 
 	//-- entier --// 
 	int choixUserSerie, choixPuissanceR; 
 
@@ -70,7 +72,7 @@ void main()
 		if (validationResistance == NOT_OK)
 		{
 			//-- information / demande à l'utilisateur 
-			printf("\nVeuillez inserer une valeur unitaire de resistance entre 1.00 à 9.99 (ex : 3.14) : "); 
+			printf("\nVeuillez inserer une valeur unitaire de resistance entre 1.00 a 9.99 (ex : 3.14) : "); 
 
 			//-- récupération de info utilisateur --// 
 			scanf("%f", &choixUserValResistance);
@@ -103,26 +105,45 @@ void main()
 	//-- appel de fonction => calculer la résistance définit par l'utilisateur
 	Resistances.resistanceBrute = CalculResistanceUser(choixUserValResistance, choixPuissanceR);
 
-	//-- appel de fonction => afficher la valeur avec le suffixe de puissance (-, k, M)
+	//-- appel de fonction => afficher la valeur de la résistance avec le suffixe de puissance (-, k, M)
+	printf("\nla valeur brute"); 
 	AfficherValeurResistance(Resistances.resistanceBrute, choixPuissanceR);
 
 	//-- sélection de la structure à utiliser en fonction du choix de l'utilisateur --// 
 	switch (choixUserSerie)
 	{
 		case E6: 
+			//-- MAJ de la structure Resistance --// 
 			Resistances.choixSerieR = E6; 
+			Resistances.pt_tbApproximation = &tbDecadeE6[0]; 
 			break; 
 
 		case E12: 
+			//-- MAJ de la structure Resistance --// 
 			Resistances.choixSerieR = E12;
+			Resistances.pt_tbApproximation = &tbDecadeE12[0];
 			break; 
 
 		case E24: 
+			//-- MAJ de la structure Resistance --// 
 			Resistances.choixSerieR = E24;
+			Resistances.pt_tbApproximation = &tbDecadeE24[0];
 			break; 
 
 		default: 
 			printf("!! Aucune structure selectionnee !!"); 
 			break; 
 	}
+	//-- MAJ de la structure avec la notion de puissance de 10^x --// 
+	Resistances.poidPuissanceR = choixPuissanceR; 
+
+	//-- calcul des points de série --//
+	CalculPointSerie(&Resistances); 
+
+	//-- calcul de la valeur normalisée --// 
+	CalculValeurNormalisee(&Resistances); 
+	
+	//-- appel de fonction => afficher la valeur de la résistance avec le suffixe de puissance (-, k, M)
+	printf("\nla valeur normalisee");
+	AfficherValeurResistance(Resistances.resistanceNormalisee, Resistances.poidPuissanceR);
 }
