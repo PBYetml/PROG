@@ -2,7 +2,7 @@
 // Nom du projet 		: Approximation résistance
 // Nom du fichier 		: infoSeries.h
 // Date de création 	: 04.03.2022
-// Date de modification : 05.03.2022
+// Date de modification : 07.03.2022
 //
 // Auteur 				: Philou (Ph. Bovey)
 //
@@ -24,6 +24,9 @@
 #define LIMITE_POID_PUISSANCE_MIN 0
 #define LIMITE_POID_PUISSANCE_MAX 6
 
+#define MSG_BRUTE "brute"
+#define MSG_NORMALISEE "normalisee"
+
 //-- déclaration énumération --// 
 typedef enum
 {
@@ -41,6 +44,7 @@ typedef struct
 {
 	uint8_t choixSerieR;			// choix de la série 
 	uint8_t rangResistance; 		// rang ou position de la valeur normalisée 
+	unsigned int poidPuissanceR;	// représente l'exposant de puissance de 10
 	float *pt_tbApproximation;		// tableau d'approximation unitaire
 	float resistanceBrute;			// valeur brute de la résistance 
 	float resistanceNormalisee;		// valeur normalisée de la résistance
@@ -52,6 +56,7 @@ e_validation ControleChoixResistance(float valUser);					// contrôle de la valeu
 e_validation ControlePuissanceResistance(uint8_t valUser);				// contrôle du puissance de puissance en base 10
 float CalculResistanceUser(float valR, uint8_t valP);					// calcule la résistance brute de l'utilsateur
 void AfficherValeurResistance(float valRBrute, uint8_t poidPuissance);	// affichage de la valeur de résistance avec suffixe -, k, M
+void CalculPointSerie(s_serieRX* infoResistance);						// calcul de la série de résistance 
 
 #endif // !INFO_SERIE
 
